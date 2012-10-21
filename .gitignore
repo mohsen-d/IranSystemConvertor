@@ -40,17 +40,7 @@ local.properties
 *.suo
 *.user
 *.sln.docstates
-*.nunit
-*.VisualState.xml
-*.csproj
-*.sln
-*.nupkg
-*.dll
-*.framework.xml
-license.txt
-assemblyinfo.cs
-repositories.config
-packages.config
+
 
 
 

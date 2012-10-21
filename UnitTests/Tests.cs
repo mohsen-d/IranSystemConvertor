@@ -11,17 +11,27 @@ namespace UnitTests
     public class Tests
     {
         [Test]
-        public void IranSystemTest()
+        public void IranSystem_Normal_Test()
         {
-            string expected0 = "محمد";
-            string expected1 = "123";
-
-            string actual0 = ConvertTo.Unicode("¢ُںُ");
-            string actual1 = ConvertTo.Unicode("123");
-
-            Assert.AreEqual(expected0, actual0);
-            Assert.AreEqual(expected1, actual1);
+            Assert.AreEqual("محمد", ConvertTo.Unicode("¢ُںُ"));
         }
 
+        [Test]
+        public void IranSystem_Number_Test()
+        {
+            Assert.AreEqual("123", ConvertTo.Unicode("123"));
+        }
+
+        [Test]
+        public void IranSystem_TwoBytesCharacters_One_Accurance_Test()
+        {
+            Assert.AreEqual("کلاف", ConvertTo.Unicode(" éٍî").Trim());
+        }
+
+        [Test]
+        public void IranSystem_TwoBytesCharacters_More_Than_One_Accurance_Test()
+        {
+            Assert.AreEqual("کلاف کلاف", ConvertTo.Unicode("éٍîéٍî").Trim());
+        }
     }
 }

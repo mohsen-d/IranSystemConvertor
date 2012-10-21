@@ -126,7 +126,6 @@ namespace IranSystemConvertor
                                              237, // ک
                                              239, // گ
                                              241, // ل
-                                             242, // لا
                                              244, // م
                                              246, // ن
                                              249, // ه
@@ -159,16 +158,16 @@ namespace IranSystemConvertor
 
             // آرایه ای که بایت های معادل را در آن قرار می دهیم
             // مجموع تعداد بایت های رشته + بایت های اضافی محاسبه شده 
-            byte[] newStringBytes = new byte[stringBytes.Length + GetCharacterssWithSpaceAfterCount(stringBytes)];
+            byte[] newStringBytes = new byte[stringBytes.Length + GetCharactersRequireTwoBytesCount(stringBytes)];
 
             int j = 0;
 
-            // بررسی هر بایت و پیدا کردن بایت (های ) معادل آن
+            // بررسی هر بایت و پیدا کردن بایت (های) معادل آن
             for (int i = 0; i < stringBytes.Length; ++i)
             {
                 byte charByte = stringBytes[i];
 
-                // اگر جز 128 بیت اول باشد که نیازی به تبدیل ندارد چون کد اسکی است
+                // اگر جز 128 بایت اول باشد که نیازی به تبدیل ندارد چون کد اسکی است
                 if (charByte < 128)
                 {
                     newStringBytes[j] = charByte;
@@ -195,7 +194,8 @@ namespace IranSystemConvertor
                 }
 
                 // اگر کاراکتر یکی از انواعی بود که بعدشان باید یک فاصله باشد
-                if (charactersWithSpaceAfter.Contains(charByte))
+                // و در عین حال آخرین کاراکتر رشته نبود
+                if (charactersWithSpaceAfter.Contains(charByte) && Array.IndexOf(stringBytes, charByte) != stringBytes.Length - 1)
                 {
                     j = j + 1;
                     // یک فاصله بعد ان اضافه می کنیم
@@ -228,16 +228,22 @@ namespace IranSystemConvertor
 
         /// <summary>
         ///  محاسبه تعداد کاراکترهایی که بعد از آنها یک کاراکتر باید اضافه شود
+        ///  شامل کاراکتر لا
+        ///  و کاراکترهای غیرچسبان تنها در صورتی که کاراکتر پایانی رشته نباشند
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        static int GetCharacterssWithSpaceAfterCount(byte[] irTextBytes)
+        static int GetCharactersRequireTwoBytesCount(byte[] irTextBytes)
         {
             return (from b in irTextBytes
-                    where charactersWithSpaceAfter.Contains(b)
+                    where (
+                    charactersWithSpaceAfter.Contains(b) // یکی از حروف غیرچسبان باشد
+                    && Array.IndexOf(irTextBytes, b) != irTextBytes.Length - 1) // و کاراکتر آخر هم نباشد
+                    || b == 242 // یا کاراکتر لا باشد
                     select b).Count();
 
         }
+
 
         #endregion
 

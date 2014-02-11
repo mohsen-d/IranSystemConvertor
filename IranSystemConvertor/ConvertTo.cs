@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ConvertTo.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="ConvertTo.cs">
+// By: MOHSEN DORPARASTI - 1391
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -10,10 +10,14 @@ namespace IranSystemConvertor
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
 
-    /// <summary>
-    /// TODO: Update summary.
-    /// </summary>
+    public enum TextEncoding
+    {
+        Arabic1256 = 1256,
+        CP1252 = 1252
+    }
+
     public static class ConvertTo
     {
         #region private Members (2)
@@ -136,19 +140,32 @@ namespace IranSystemConvertor
 
         #endregion
 
+        /// <summary>
+        /// تبدیل یک رشته ایران سیستم به یونیکد با استفاده از عربی 1256
+        /// </summary>
+        /// <param name="iranSystemEncodedString">رشته ایران سیستم</param>
+        /// <returns></returns>
+        [Obsolete("بهتر است از UnicodeFrom استفاده کنید")]
+        public static string Unicode(string iranSystemEncodedString)
+        {
+            return UnicodeFrom(TextEncoding.Arabic1256, iranSystemEncodedString);
+        }
 
         /// <summary>
         /// تبدیل یک رشته ایران سیستم به یونیکد
         /// </summary>
         /// <param name="iranSystemEncodedString">رشته ایران سیستم</param>
         /// <returns></returns>
-        public static string Unicode(string iranSystemEncodedString)
+        public static string UnicodeFrom(TextEncoding textEncoding, string iranSystemEncodedString)
         {
-            // انکود عربی برای تبدیل رشته ایران سیستم به بایت
-            Encoding arabic = Encoding.GetEncoding(1256);
+            // وهله سازی از انکودینگ صحیح برای تبدیل رشته ایران سیستم به بایت
+            Encoding encoding = Encoding.GetEncoding((int)textEncoding);
+
+            // حذف فاصله های موجود در رشته
+            iranSystemEncodedString = iranSystemEncodedString.Replace(" ", "");
 
             // تبدیل رشته به بایت
-            byte[] stringBytes = arabic.GetBytes(iranSystemEncodedString.Trim());
+            byte[] stringBytes = encoding.GetBytes(iranSystemEncodedString.Trim());
 
             // تغییر ترتیب بایت هااز آخر به اول در صورتی که رشته تماماً عدد نباشد
             if (!IsNumber(iranSystemEncodedString))
@@ -158,9 +175,9 @@ namespace IranSystemConvertor
 
             // آرایه ای که بایت های معادل را در آن قرار می دهیم
             // مجموع تعداد بایت های رشته + بایت های اضافی محاسبه شده 
-            byte[] newStringBytes = new byte[stringBytes.Length + GetCharactersRequireTwoBytesCount(stringBytes)];
+            byte[] newStringBytes = new byte[stringBytes.Length + CountCharactersRequireTwoBytes(stringBytes)];
 
-            int j = 0;
+            int index = 0;
 
             // بررسی هر بایت و پیدا کردن بایت (های) معادل آن
             for (int i = 0; i < stringBytes.Length; ++i)
@@ -170,47 +187,38 @@ namespace IranSystemConvertor
                 // اگر جز 128 بایت اول باشد که نیازی به تبدیل ندارد چون کد اسکی است
                 if (charByte < 128)
                 {
-                    newStringBytes[j] = charByte;
+                    newStringBytes[index] = charByte;
                 }
                 else
                 {
                     // اگر جز حروف یا اعداد بود معادلش رو قرار می دیم
                     if (CharactersMapper.ContainsKey(charByte))
                     {
-                        newStringBytes[j] = CharactersMapper[charByte];
-                    }
-                    else
-                    {
-                        //newStringBytes[j] = charByte;
+                        newStringBytes[index] = CharactersMapper[charByte];
                     }
                 }
 
                 // اگر کاراکتر ایران سیستم "لا" بود چون کاراکتر متناظرش در عربی 1256 "ل" است و باید یک "ا" هم بعدش اضافه کنیم
                 if (charByte == 242)
                 {
-                    j = j + 1;
-
-                    newStringBytes[j] = 199;
+                    newStringBytes[++index] = 199;
                 }
 
                 // اگر کاراکتر یکی از انواعی بود که بعدشان باید یک فاصله باشد
                 // و در عین حال آخرین کاراکتر رشته نبود
                 if (charactersWithSpaceAfter.Contains(charByte) && Array.IndexOf(stringBytes, charByte) != stringBytes.Length - 1)
                 {
-                    j = j + 1;
                     // یک فاصله بعد ان اضافه می کنیم
-                    newStringBytes[j] = 32;
+                    newStringBytes[++index] = 32;
                 }
 
-                j = j + 1;
+                index += 1;
             }
 
-            // تبدیل آرایه معادل از عربی به یونیکد
-            byte[] unicodeContent = Encoding.Convert(arabic, Encoding.Unicode, newStringBytes);
-
             // تبدیل به رشته و ارسال به فراخواننده
-            return Encoding.Unicode.GetString(unicodeContent).Trim();
+            byte[] unicodeContent = Encoding.Convert(encoding, Encoding.Unicode, newStringBytes);
 
+            return Encoding.Unicode.GetString(unicodeContent).Trim();
         }
 
         #region Private Methods (2)
@@ -222,8 +230,7 @@ namespace IranSystemConvertor
         /// <returns></returns>
         static bool IsNumber(string str)
         {
-            int i;
-            return int.TryParse(str, out i);
+            return Regex.IsMatch(str, @"^[\d]+$");
         }
 
         /// <summary>
@@ -233,7 +240,7 @@ namespace IranSystemConvertor
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        static int GetCharactersRequireTwoBytesCount(byte[] irTextBytes)
+        static int CountCharactersRequireTwoBytes(byte[] irTextBytes)
         {
             return (from b in irTextBytes
                     where (
@@ -241,9 +248,7 @@ namespace IranSystemConvertor
                     && Array.IndexOf(irTextBytes, b) != irTextBytes.Length - 1) // و کاراکتر آخر هم نباشد
                     || b == 242 // یا کاراکتر لا باشد
                     select b).Count();
-
         }
-
 
         #endregion
 

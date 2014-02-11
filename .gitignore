@@ -129,6 +129,8 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+# Not Related Files
+*.zip
 
 #############
 ## Python

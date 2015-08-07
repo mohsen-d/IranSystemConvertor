@@ -20,7 +20,10 @@ namespace IranSystemConvertor
 
     public static class ConvertTo
     {
-        #region private Members (2)
+        #region private Members (3)
+
+        // متغیری برای نگهداری اعدادی که در رشته ایران سیستم وجود دارند
+        static Stack<string> NumbersInTheString;
 
         // کد کاراکترها در ایران سیستم و معادل آنها در عربی 1256
         static Dictionary<byte, byte> CharactersMapper = new Dictionary<byte, byte>
@@ -154,24 +157,36 @@ namespace IranSystemConvertor
         /// <summary>
         /// تبدیل یک رشته ایران سیستم به یونیکد
         /// </summary>
+        /// <param name="textEncoding">کدپیج رشته ایران سیستم</param>
         /// <param name="iranSystemEncodedString">رشته ایران سیستم</param>
         /// <returns></returns>
         public static string UnicodeFrom(TextEncoding textEncoding, string iranSystemEncodedString)
         {
-            // وهله سازی از انکودینگ صحیح برای تبدیل رشته ایران سیستم به بایت
-            Encoding encoding = Encoding.GetEncoding((int)textEncoding);
-
             // حذف فاصله های موجود در رشته
             iranSystemEncodedString = iranSystemEncodedString.Replace(" ", "");
+
+            /// بازگشت در صورت خالی بودن رشته
+            if (string.IsNullOrWhiteSpace(iranSystemEncodedString))
+            {
+                return string.Empty;
+            }
+
+            // در صورتی که رشته تماماً عدد نباشد
+            if (!IsNumber(iranSystemEncodedString))
+            {
+                /// تغییر ترتیب کاراکترها از آخر به اول 
+                iranSystemEncodedString = Reverse(iranSystemEncodedString);
+
+                /// خارج کردن اعداد درون رشته
+                iranSystemEncodedString = ExcludeNumbers(iranSystemEncodedString);
+            }
+
+            // وهله سازی از انکودینگ صحیح برای تبدیل رشته ایران سیستم به بایت
+            Encoding encoding = Encoding.GetEncoding((int)textEncoding);            
 
             // تبدیل رشته به بایت
             byte[] stringBytes = encoding.GetBytes(iranSystemEncodedString.Trim());
 
-            // تغییر ترتیب بایت هااز آخر به اول در صورتی که رشته تماماً عدد نباشد
-            if (!IsNumber(iranSystemEncodedString))
-            {
-                stringBytes = stringBytes.Reverse().ToArray();
-            }
 
             // آرایه ای که بایت های معادل را در آن قرار می دهیم
             // مجموع تعداد بایت های رشته + بایت های اضافی محاسبه شده 
@@ -218,10 +233,12 @@ namespace IranSystemConvertor
             // تبدیل به رشته و ارسال به فراخواننده
             byte[] unicodeContent = Encoding.Convert(encoding, Encoding.Unicode, newStringBytes);
 
-            return Encoding.Unicode.GetString(unicodeContent).Trim();
+            string convertedString = Encoding.Unicode.GetString(unicodeContent).Trim();
+
+            return IncludeNumbers(convertedString);
         }
 
-        #region Private Methods (2)
+        #region Private Methods (4)
 
         /// <summary>
         /// رشته ارسال شده تنها حاوی اعداد است یا نه
@@ -248,6 +265,50 @@ namespace IranSystemConvertor
                     && Array.IndexOf(irTextBytes, b) != irTextBytes.Length - 1) // و کاراکتر آخر هم نباشد
                     || b == 242 // یا کاراکتر لا باشد
                     select b).Count();
+        }
+
+        /// <summary>
+        /// خارج کردن اعدادی که در رشته ایران سیستم قرار دارند
+        /// </summary>
+        /// <param name="iranSystemString"></param>
+        /// <returns></returns>
+        static string ExcludeNumbers(string iranSystemString)
+        {
+            /// گرفتن لیستی از اعداد درون رشته
+            NumbersInTheString = new Stack<string>(Regex.Split(iranSystemString, @"\D+"));
+
+            /// جایگزین کردن اعداد با یک علامت جایگزین
+            /// در نهایت بعد از تبدیل رشته اعداد به رشته اضافه می شوند
+            return Regex.Replace(iranSystemString, @"\d+", "#");
+        }
+
+        /// <summary>
+        /// اضافه کردن اعداد جدا شده پس از تبدیل رشته
+        /// </summary>
+        /// <param name="convertedString"></param>
+        /// <returns></returns>
+        static string IncludeNumbers(string convertedString)
+        {
+            while (convertedString.IndexOf("#") >= 0)
+            {
+                string number = Reverse(NumbersInTheString.Pop());
+                if(!string.IsNullOrWhiteSpace(number))
+                {
+                    int index = convertedString.IndexOf("#");
+
+                    convertedString = convertedString.Remove(index, 1);
+                    convertedString = convertedString.Insert(index, number);
+                }                
+            }
+
+            return convertedString;
+        }
+
+        static string Reverse(string s)
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
         }
 
         #endregion

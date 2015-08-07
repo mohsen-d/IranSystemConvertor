@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1000]D:\mohsen.d\My Job\Programming\GITHUB\IranSystemConvertor\UnitTests\tests.nunit</TopNode>
+  <SelectedNode>[0-1008]UnitTests.Tests.IranSystem_Mixed_String_And_Number</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1000]D:\mohsen.d\My Job\Programming\GITHUB\IranSystemConvertor\UnitTests\tests.nunit" Expanded="true" />
+    <Node UniqueName="[0-1009]D:\mohsen.d\My Job\Programming\GITHUB\IranSystemConvertor\UnitTests\bin\Debug\UnitTests.dll" Expanded="true" />
+    <Node UniqueName="[0-1010]UnitTests" Expanded="true" />
+    <Node UniqueName="[0-1001]UnitTests.Tests" Expanded="true" />
+  </Nodes>
+</VisualState>

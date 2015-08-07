@@ -46,5 +46,11 @@ namespace UnitTests
             Assert.AreEqual("ليست", ConvertTo.UnicodeFrom(TextEncoding.Arabic1256, "–¨‏َ"));
             Assert.AreEqual("مناطق تهران", ConvertTo.UnicodeFrom(TextEncoding.Arabic1256, " ِگ¤ْ— ë¯‘÷ُ"));
         }
+
+        [Test]
+        public void IranSystem_Mixed_String_And_Number()
+        {
+            Assert.AreEqual("مناطق 123تهران", ConvertTo.UnicodeFrom(TextEncoding.Arabic1256, " ِگ¤ْ— 123 ë¯‘÷ُ"));
+        }
     }
 }

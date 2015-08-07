@@ -15,7 +15,7 @@ using IranSystemConvertor;
 
 string iranSystemStr = // an IRANSYSTEM string
 
-string unicodeStr = ConvertTo.Unicode(iranSystemStr); 
+string unicodeStr = ConvertTo.UnicodeFrom(TextEncoding.Arabic1256, iranSystemStr); 
 
 </pre>
 

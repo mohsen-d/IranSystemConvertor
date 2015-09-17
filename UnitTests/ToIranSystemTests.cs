@@ -117,5 +117,21 @@ namespace UnitTests
             var expected = "ِگ¤ْ—123 ë¯‘÷ُ";
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void IranSystem_Mixed_String_And_English()
+        {
+            var actual = "مناطق ABCتهران".ToIranSystem();
+            var expected = "ِگ¤ْ—ABC ë¯‘÷ُ";
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void IranSystem_Mixed_English_And_Numbers()
+        {
+            var actual = "Ab123CD456".ToIranSystem();
+            var expected = "Ab123CD456";
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

@@ -187,7 +187,7 @@ namespace IranSystemConvertor
                 return text;
             }
 
-            text = reverseNumbers(text);
+            text = reverseNumbersAndLetters(text);
             var iranSystemBytes = getUnicodeToIranSystem(text, iranSystemNumbers);
             var iranSystemText = _encoding1256.GetString(iranSystemBytes.ToArray()).Trim();
             return new string(iranSystemText.Reverse().ToArray());
@@ -341,9 +341,9 @@ namespace IranSystemConvertor
             return isWhiteSpaceLetter(c) || isLattinLetter(c) || c == QuestionMark;
         }
 
-        private static string reverseNumbers(string text)
+        private static string reverseNumbersAndLetters(string text)
         {
-            return Regex.Replace(text, @"\d+", match =>
+            return Regex.Replace(text, @"[a-zA-Z0-9]+", match =>
             {
                 return new string(match.Value.Reverse().ToArray());
             }).Trim();

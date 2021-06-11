@@ -1,9 +1,9 @@
-#IRANSYSTEM Convertor#
+IRANSYSTEM Convertor
 ================================
 
 **Purpose**
 
-this class converts a string containing IRANSYSTEM characters into unicode string . note that this just converts alphanumeric characters and ignore others .
+This class converts a string containing IRANSYSTEM characters into a unicode string. Note that this just converts alphanumeric characters and ignores the rest.
 
 **Usage**
 
@@ -13,7 +13,7 @@ using IranSystemConvertor;
 .
 .
 
-string iranSystemStr = // an IRANSYSTEM string
+string iranSystemStr = "an IRANSYSTEM string"
 
 string unicodeStr = ConvertTo.UnicodeFrom(TextEncoding.Arabic1256, iranSystemStr); 
 
@@ -22,4 +22,4 @@ string unicodeStr = ConvertTo.UnicodeFrom(TextEncoding.Arabic1256, iranSystemStr
 
 **Dependencies**
 
-no dependency
+No dependency

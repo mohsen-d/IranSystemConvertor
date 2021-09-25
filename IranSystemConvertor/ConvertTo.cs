@@ -294,7 +294,7 @@ namespace IranSystemConvertor
                 string number = Reverse(NumbersInTheString.Pop());
                 if(!string.IsNullOrWhiteSpace(number))
                 {
-                    int index = convertedString.IndexOf("#");
+                    int index = convertedString.LastIndexOf("#");
 
                     convertedString = convertedString.Remove(index, 1);
                     convertedString = convertedString.Insert(index, number);

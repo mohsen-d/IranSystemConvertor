@@ -231,9 +231,20 @@ namespace IranSystemConvertor
             }
 
             // تبدیل به رشته و ارسال به فراخواننده
-            byte[] unicodeContent = Encoding.Convert(encoding, Encoding.Unicode, newStringBytes);
+            Encoding encodingArabic = Encoding.GetEncoding((int)TextEncoding.Arabic1256);
 
-            string convertedString = Encoding.Unicode.GetString(unicodeContent).Trim();
+            byte[] newStringBytesUnicode = new byte[newStringBytes.Length];
+
+            newStringBytesUnicode = Encoding.Convert(encodingArabic, Encoding.UTF8, newStringBytes);
+
+            string convertedString = Encoding.UTF8.GetString(newStringBytesUnicode);
+            convertedString = convertedString
+                                .Replace("ڑ", "ء")
+                                .Replace("ؤ", "ئ")
+                                .Replace("ي", "ی")
+                                .Replace("ك", "ک")
+                                .Replace(char.ConvertFromUtf32(1609), char.ConvertFromUtf32(1740))
+                                .Replace(char.ConvertFromUtf32(1726), char.ConvertFromUtf32(1607));
 
             return IncludeNumbers(convertedString);
         }
